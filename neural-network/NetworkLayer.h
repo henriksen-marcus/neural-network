@@ -2,20 +2,19 @@
 #include <vector>
 #include "Neuron.h"
 
+/**
+ * \brief A layer in the neural network, containing a number of neurons.
+ */
 struct NetworkLayer
 {
     NetworkLayer(int numNeurons, int numNeuronInputs, double* learningRate)
     {
-        std::random_device randomDevice;
-        std::mt19937 randomNumberGenerator(randomDevice());
-        
         neurons.reserve(numNeurons);
         for (int i = 0; i < numNeurons; i++)
         {
-            neurons.emplace_back(numNeuronInputs, learningRate, randomNumberGenerator);
+            neurons.emplace_back(numNeuronInputs, learningRate);
         }
     }
-    ~NetworkLayer() = default;
     
     std::vector<Neuron> neurons;
 };

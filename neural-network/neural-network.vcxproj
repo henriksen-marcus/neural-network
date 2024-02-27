@@ -132,6 +132,7 @@
     <ClCompile Include="Neuron.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ActivationFunction.h" />
     <ClInclude Include="NetworkLayer.h" />
     <ClInclude Include="NeuralNetwork.h" />
     <ClInclude Include="Neuron.h" />

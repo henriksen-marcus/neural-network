@@ -12,7 +12,6 @@ NeuralNetwork::NeuralNetwork(int numInputs, int numOutputs, int numHiddenLayers,
     this->numHiddenLayers = numHiddenLayers;
     this->numNeuronsPerHiddenLayer = numNeuronsPerHiddenLayer;
     this->learningRate = learningRate;
-    this->error = 0.0;
 
     // Input layer
     networkLayers.emplace_back(numInputs, 1, &learningRate);
@@ -39,11 +38,8 @@ std::vector<double> NeuralNetwork::forwardPropagate(const std::vector<double>& i
 
     // Initialize the input layer with the input data
     for (size_t i = 0; i < input.size(); i++)
-    {
         networkLayers[0].neurons[i].output = input[i];
-        //std::cout << "NeuralNetwork: Input layer neuron " << i << " output: " << input[i] << ".\n";
-    }
-
+    
     // Forward propagate
     for (size_t i = 1; i < networkLayers.size(); i++) // Skip input layer
     {
@@ -56,16 +52,15 @@ std::vector<double> NeuralNetwork::forwardPropagate(const std::vector<double>& i
     }
     // Forward propagation is done, the output layer now contains the output from the network
 
-    // The output layer is the last layer, so we can just take the output directly
+    // Return the output layer neurons' output
     std::vector<Neuron> outputLayer = networkLayers.back().neurons;
+    
     std::vector<double> output;
     output.reserve(outputLayer.size());
 
-    //for (const Neuron& neuron : outputLayer)
-        //std::cout << "NeuralNetwork: Output layer neuron output: " << neuron.output << " Original output: " << neuron.originalOutput << ".\n";
-        //output.push_back(neuron.output);
-
-
+    for (const Neuron& neuron : outputLayer)
+        output.emplace_back(neuron.output);
+    
     //std::cout << "NeuralNetwork: Forward propagation done.\n";
 
     // Print neural network vizualization
@@ -94,7 +89,7 @@ std::vector<double> NeuralNetwork::forwardPropagate(const std::vector<double>& i
     return output;
 }
 
-double NeuralNetwork::backwardPropagate(const std::vector<double>& input, const std::vector<double>& targetOutput)
+double NeuralNetwork::backPropagate(const std::vector<double>& input, const std::vector<double>& targetOutput)
 {
     //std::cout << "NeuralNetwork: Start backpropagation.\n";
     
@@ -141,15 +136,14 @@ double NeuralNetwork::backwardPropagate(const std::vector<double>& input, const 
     }
 
     // All error gradients have been calculated, now we need to update the weights and biases
-
-    //std::cout << "NeuralNetwork: Updating weights and biases.\n";
+    
     //std::cout << "  NeuralNetwork: Update weights and biases for OUTPUT layer.\n";
     int u = 0;
     // Update output layer weights and biases
     for (auto& neuron : outputLayer.neurons)
     {
         //std::cout << "   Neuron " << u++ << ":\n";
-        neuron.updateWeights(true);
+        neuron.updateWeights(TODO, true);
         neuron.updateBias();
     }
 
@@ -164,7 +158,7 @@ double NeuralNetwork::backwardPropagate(const std::vector<double>& input, const 
         for (auto& neuron : layer.neurons)
         {
             //std::cout << "   Neuron " << u++ << ":\n";
-            neuron.updateWeights(false);
+            neuron.updateWeights(TODO, false);
             neuron.updateBias();
         }
     }
@@ -176,26 +170,12 @@ double NeuralNetwork::backwardPropagate(const std::vector<double>& input, const 
 double NeuralNetwork::train(const std::vector<std::vector<double>>& trainingData, const std::vector<std::vector<double>>& targetOutput)
 {
     double MSE = 0.0;
-    
     for (size_t i = 0; i < trainingData.size(); i++)
     {
         std::vector<double> input = trainingData[i];
         std::vector<double> output = forwardPropagate(input);
-        MSE = backwardPropagate(input, targetOutput[i]);
+        MSE = backPropagate(input, targetOutput[i]);
     }
+    
     return MSE;
-    // Calculate error
-    /*std::vector<double> error;
-    for (size_t i = 0; i < predictedOutput.size(); i++)
-    {
-        error.push_back(targetOutput[i] - predictedOutput[i]);
-    }
-
-    std::cout << "Error: " << error[0] << "\n";*/
-}
-
-double NeuralNetwork::predict(const std::vector<double>& input)
-{
-    forwardPropagate(input);
-    return networkLayers.back().neurons[0].output;
 }

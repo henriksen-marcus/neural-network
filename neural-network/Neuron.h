@@ -23,7 +23,7 @@ public:
      * @param numInputs The number of inputs to the neuron
      * @param randomNumberGenerator A random number generator to initialize the weights and bias
      */
-    Neuron(int numInputs, double* learningRate, std::mt19937 randomNumberGenerator);
+    Neuron(int numInputs, double* learningRate);
     ~Neuron() = default;
     
     void calculateOutputGradient(double targetOutput);
@@ -40,10 +40,12 @@ public:
      * \param neuronsOfPreviousLayer The neurons from the previous layer
      */
     void feedForward(const std::vector<Neuron>& neuronsOfPreviousLayer);
-    void updateWeights(bool isOutputLayer);
+    void updateWeights(const std::vector<Neuron>& neuronsOfPreviousLayer, bool isOutputLayer);
     void updateBias();
 
     double bias;
+
+    // The raw output value of the neuron before applying the activation function
     double originalOutput;
     // The activated, predicted output value
     double output{};
@@ -59,5 +61,7 @@ public:
     
     std::vector<double> inputs;
     std::vector<double> weights;
+
+    // Pointer to the learning rate stored in the neural network
     double* learningRate;
 };

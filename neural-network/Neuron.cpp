@@ -4,27 +4,23 @@
 
 #include "NetworkLayer.h"
 
-Neuron::Neuron(int numInputs, double* learningRate, std::mt19937 randomNumberGenerator)
+Neuron::Neuron(int numInputs, double* learningRate)
 {
     std::random_device randomDevice;
-    std::mt19937 _randomNumberGenerator(randomDevice());
-    
+    std::mt19937 randomNumberGenerator(randomDevice());
+
     std::uniform_real_distribution<double> distribution(-1.0, 1.0);
-    
+
     weights.reserve(numInputs);
     for (int i = 0; i < numInputs; i++)
     {
         // Initialize weights with random values between -1 and 1
-        weights.push_back(distribution(_randomNumberGenerator));
+        weights.push_back(distribution(randomNumberGenerator));
     }
 
-    /*for (auto weight : weights)
-    {
-        std::cout << "Neuron::Neuron: Weight: " << weight << "\n";
-    }*/
-    
     inputs.reserve(numInputs);
     bias = distribution(randomNumberGenerator);
+    originalOutput = 0.0;
     this->learningRate = learningRate;
 }
 
@@ -78,7 +74,7 @@ void Neuron::feedForward(const std::vector<Neuron>& neuronsOfPreviousLayer)
     //std::cout << "   Neuron::feedForward: inputs size: " << inputs.size() << "\n";
 }
 
-void Neuron::updateWeights(bool isOutputLayer)
+void Neuron::updateWeights(const std::vector<Neuron>& neuronsOfPreviousLayer, bool isOutputLayer)
 {
     //std::cout << "      Neuron::updateWeights: isOutputLayer: " << isOutputLayer << " Weights length: " << weights.size() << " Inputs length: " << inputs.size()  << ".\n";
     
