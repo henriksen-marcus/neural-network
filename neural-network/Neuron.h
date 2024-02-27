@@ -2,6 +2,9 @@
 
 #include <random>
 #include <vector>
+//#include "NetworkLayer.h"
+
+struct NetworkLayer;
 
 /**
  * @struct Neuron
@@ -11,39 +14,50 @@
  * The neuron also holds the raw value before applying the activation function to get the output (N).
  * Each neuron has a set of inputs and corresponding weights.
  */
-struct Neuron
+class Neuron
 {
+public:
     /**
      * @brief Construct a new Neuron object
      *
      * @param numInputs The number of inputs to the neuron
      * @param randomNumberGenerator A random number generator to initialize the weights and bias
      */
-    Neuron(int numInputs, std::mt19937 randomNumberGenerator)
-    {
-        std::uniform_real_distribution<double> distribution(-1.0, 1.0);
-        
-        weights.reserve(numInputs);
-        for (int i = 0; i < numInputs; i++)
-        {
-            // Initialize weights with random values between -1 and 1
-            weights.push_back(distribution(randomNumberGenerator));
-        }
-
-        bias = distribution(randomNumberGenerator);
-        
-    }
+    Neuron(int numInputs, double* learningRate, std::mt19937 randomNumberGenerator);
     ~Neuron() = default;
     
-    double bias;
-    double output{};
+    void calculateOutputGradient(double targetOutput);
+    void calculateHiddenGradient(const NetworkLayer& layerToTheRight, size_t index);
+    
+    /// \brief Calculates the activation amount for the neuron
+    /// \param input The summed input to the neuron
+    /// \return The activation amount
+    static double activate(double input);
+    static double activateDerivative(double input);
 
+    /**
+     * \brief Processes the output from the previous layer and calculates the output for this neuron
+     * \param neuronsOfPreviousLayer The neurons from the previous layer
+     */
+    void feedForward(const std::vector<Neuron>& neuronsOfPreviousLayer);
+    void updateWeights(bool isOutputLayer);
+    void updateBias();
+
+    double bias;
+    double originalOutput;
+    // The activated, predicted output value
+    double output{};
     // Error gradient value for backpropagation
     double errorGradient{};
 
-    // The raw value before applying the activation function to get the output
-    double N{};
+    /**
+     * \brief aka. Error difference.
+     * The diff between the expected output and the predicted output.
+     * Only used for output layer neurons.
+     */
+    double errorDelta{};
     
     std::vector<double> inputs;
     std::vector<double> weights;
+    double* learningRate;
 };
