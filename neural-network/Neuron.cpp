@@ -1,10 +1,8 @@
 ﻿#include "Neuron.h"
-
 #include <iostream>
-
 #include "NetworkLayer.h"
 
-Neuron::Neuron(int numInputs, double* learningRate)
+Neuron::Neuron(size_t numInputs, double learningRate, ActiviationFunction activationFunction)
 {
     std::random_device randomDevice;
     std::mt19937 randomNumberGenerator(randomDevice());
@@ -12,16 +10,16 @@ Neuron::Neuron(int numInputs, double* learningRate)
     std::uniform_real_distribution<double> distribution(-1.0, 1.0);
 
     weights.reserve(numInputs);
-    for (int i = 0; i < numInputs; i++)
+    for (size_t i = 0; i < numInputs; i++)
     {
         // Initialize weights with random values between -1 and 1
         weights.push_back(distribution(randomNumberGenerator));
     }
-
-    inputs.reserve(numInputs);
+    
     bias = distribution(randomNumberGenerator);
     originalOutput = 0.0;
     this->learningRate = learningRate;
+    this->activationFunction = activationFunction;
 }
 
 void Neuron::calculateOutputGradient(double targetOutput)
@@ -56,22 +54,17 @@ double Neuron::activateDerivative(double input)
 
 void Neuron::feedForward(const std::vector<Neuron>& neuronsOfPreviousLayer)
 {
-    inputs.clear();
-    //std::cout << "Neuron::feedForward\n";
     double sum = 0.0;
+    
     for (size_t i = 0; i < neuronsOfPreviousLayer.size(); i++)
     {
-        //std::cout << "   Neuron::feedForward: i: " << i << " Neurons of previous layer size: " << neuronsOfPreviousLayer.size() << "\n";
-        inputs.push_back(neuronsOfPreviousLayer[i].output);
-        
         // Multiply each input by this neuron's corresponding weight and sum them up
         sum += neuronsOfPreviousLayer[i].output * weights[i];
     }
+    
     sum += bias;
     originalOutput = sum;
     output = activate(sum);
-
-    //std::cout << "   Neuron::feedForward: inputs size: " << inputs.size() << "\n";
 }
 
 void Neuron::updateWeights(const std::vector<Neuron>& neuronsOfPreviousLayer, bool isOutputLayer)
@@ -82,12 +75,8 @@ void Neuron::updateWeights(const std::vector<Neuron>& neuronsOfPreviousLayer, bo
     {
         for (size_t i = 0; i < weights.size(); i++)
         {
-            double newWeight = weights[i] + *(learningRate) * inputs[i] * errorDelta;
-            //std::cout << "New weight = " << weights[i] << " + " << *learningRate << " * " << inputs[i] << " * " << errorDelta << " = " << newWeight << ".\n";
-            if (newWeight != weights[i])
-            {
-                //std::cout << "      Neuron::updateWeights: New weight: " << newWeight << " Old weight: " << weights[i] << " Learning rate: " << *learningRate << " Inputs: " << inputs[i] << " Error delta: " << errorDelta << ".\n";
-            }
+            // Instead of storing the inputs in this neuron, we just use the output from the previous layer
+            double newWeight = weights[i] + learningRate * neuronsOfPreviousLayer[i].output * errorDelta;
             weights[i] = newWeight;
         }
     }
@@ -95,8 +84,7 @@ void Neuron::updateWeights(const std::vector<Neuron>& neuronsOfPreviousLayer, bo
     {
         for (size_t i = 0; i < weights.size(); i++)
         {
-            double newWeight = weights[i] + *learningRate * inputs[i] * errorGradient;
-            //std::cout << "      Neuron::updateWeights: New weight: " << newWeight << " Old weight: " << weights[i] << " Learning rate: " << *learningRate << " Inputs: " << inputs[i] << " Error delta: " << errorDelta << ".\n";
+            double newWeight = weights[i] + learningRate * neuronsOfPreviousLayer[i].output * errorGradient;
             weights[i] = newWeight;
         }
     }
@@ -104,5 +92,5 @@ void Neuron::updateWeights(const std::vector<Neuron>& neuronsOfPreviousLayer, bo
 
 void Neuron::updateBias()
 {
-    bias += *learningRate * errorGradient;
+    bias += learningRate * errorGradient;
 }

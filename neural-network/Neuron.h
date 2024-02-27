@@ -4,12 +4,12 @@
 #include <vector>
 //#include "NetworkLayer.h"
 
+enum ActiviationFunction : int;
 struct NetworkLayer;
 
 /**
  * @struct Neuron
  * @brief This struct represents a neuron in a neural network.
- *
  * Each neuron has a bias and an output value, as well as an error gradient for backpropagation.
  * The neuron also holds the raw value before applying the activation function to get the output (N).
  * Each neuron has a set of inputs and corresponding weights.
@@ -18,21 +18,31 @@ class Neuron
 {
 public:
     /**
-     * @brief Construct a new Neuron object
-     *
-     * @param numInputs The number of inputs to the neuron
-     * @param randomNumberGenerator A random number generator to initialize the weights and bias
+     * \param numInputs The number of inputs the neuron should be able to handle
+     * \param learningRate A pointer to the learning rate stored in each layer
      */
-    Neuron(int numInputs, double* learningRate);
-    ~Neuron() = default;
-    
+    Neuron(size_t numInputs, double learningRate, ActiviationFunction activationFunction);
+
+    /**
+     * \brief 
+     * \param targetOutput 
+     */
     void calculateOutputGradient(double targetOutput);
     void calculateHiddenGradient(const NetworkLayer& layerToTheRight, size_t index);
-    
-    /// \brief Calculates the activation amount for the neuron
-    /// \param input The summed input to the neuron
-    /// \return The activation amount
+
+
+    /**
+     * \brief Calculates the activation amount for the neuron.
+     * \param input The summed input to the neuron.
+     * \return The activation amount.
+     */
     static double activate(double input);
+
+    /**
+     * \brief 
+     * \param input 
+     * \return 
+     */
     static double activateDerivative(double input);
 
     /**
@@ -43,12 +53,12 @@ public:
     void updateWeights(const std::vector<Neuron>& neuronsOfPreviousLayer, bool isOutputLayer);
     void updateBias();
 
-    double bias;
-
     // The raw output value of the neuron before applying the activation function
     double originalOutput;
+
     // The activated, predicted output value
     double output{};
+
     // Error gradient value for backpropagation
     double errorGradient{};
 
@@ -58,10 +68,12 @@ public:
      * Only used for output layer neurons.
      */
     double errorDelta{};
-    
-    std::vector<double> inputs;
+
     std::vector<double> weights;
 
-    // Pointer to the learning rate stored in the neural network
-    double* learningRate;
+protected:
+    double bias;
+    // Learning rate from the parent layer
+    double learningRate;
+    ActiviationFunction activationFunction;
 };

@@ -1,37 +1,24 @@
 ﻿#include "NeuralNetwork.h"
 
-#include <assert.h>
+#include <cassert>
 #include <iostream>
-#include <string>
 
-NeuralNetwork::NeuralNetwork(int numInputs, int numOutputs, int numHiddenLayers, int numNeuronsPerHiddenLayer,
-                             double learningRate, ActiviationFunction activationFunction)
+NeuralNetwork::NeuralNetwork(const NNConstructionInfo& constructionInfo)
 {
-    this->numInputs = numInputs;
-    this->numOutputs = numOutputs;
-    this->numHiddenLayers = numHiddenLayers;
-    this->numNeuronsPerHiddenLayer = numNeuronsPerHiddenLayer;
-    this->learningRate = learningRate;
-
-    // Input layer
-    networkLayers.emplace_back(numInputs, 1, &learningRate);
-    
-    for (int i = 0; i < numHiddenLayers; i++)
+    networkLayers.reserve(constructionInfo.topology.size());
+    for (size_t i = 0; i < constructionInfo.topology.size(); i++)
     {
-        // The neurons on "this" layer needs to take in the same amount of inputs as the previous layer has neurons
-        networkLayers.emplace_back(numNeuronsPerHiddenLayer, networkLayers.back().neurons.size(), &learningRate);
+        // Input layer shouldn't have any weights, so set numInputs to 0
+        networkLayers.emplace_back(
+            constructionInfo.topology[i],
+            i == 0 ? 0 : constructionInfo.topology[i - 1].numNeurons);
     }
-
-    // Output layer
-    networkLayers.emplace_back(numOutputs, networkLayers.back().neurons.size(), &learningRate);
 }
 
 std::vector<double> NeuralNetwork::forwardPropagate(const std::vector<double>& input)
 {
-    //std::cout << "NeuralNetwork: Start forward propagation.\n";
-    
     // Input size does not match the number of inputs for the network
-    assert(input.size() == numInputs);
+    assert(input.size() == networkLayers[0].neurons.size());
     
     // The input layer is just there as a container for the input data, we don't need
     // to calculate any output for it (just take it directly)
@@ -43,13 +30,10 @@ std::vector<double> NeuralNetwork::forwardPropagate(const std::vector<double>& i
     // Forward propagate
     for (size_t i = 1; i < networkLayers.size(); i++) // Skip input layer
     {
-        //std::cout << "NeuralNetwork: Feedforward layer " << (i == networkLayers.size() - 1 ? "OUTPUT" : std::to_string(i)) << ".\n";
-        
         for (auto& neuron : networkLayers[i].neurons)
-        {
             neuron.feedForward(networkLayers[i - 1].neurons); // Send the output from the previous layer
-        }
     }
+    
     // Forward propagation is done, the output layer now contains the output from the network
 
     // Return the output layer neurons' output
@@ -91,8 +75,6 @@ std::vector<double> NeuralNetwork::forwardPropagate(const std::vector<double>& i
 
 double NeuralNetwork::backPropagate(const std::vector<double>& input, const std::vector<double>& targetOutput)
 {
-    //std::cout << "NeuralNetwork: Start backpropagation.\n";
-    
     // Calculate overall error (MSE - mean squared error)
     NetworkLayer& outputLayer = networkLayers.back();
     double errorSum = 0.0;
@@ -105,22 +87,12 @@ double NeuralNetwork::backPropagate(const std::vector<double>& input, const std:
         errorSum += neronDeltaError * neronDeltaError;
     }
 
-    double meanSquareError = errorSum/(double)outputLayer.neurons.size();
-
-    //std::cout << "NeuralNetwork: Mean square error: " << meanSquareError << ".\n";
-
-    //recentAverageError = (recentAverageError * recentAverageSmoothingFactor + meanSquareError) / (recentAverageSmoothingFactor + 1.0);
-
-   // std::cout << "NeuralNetwork: Calculating error gradients.\n";
-
-    //std::cout << "Error difference: " << outputLayer.neurons[0].errorDelta << "\n";
-    //std::cout << "Error difference manual: " << targetOutput[0] - outputLayer.neurons[0].output << "\n";
+    const double meanSquareError = errorSum/(double)outputLayer.neurons.size();
     
     // Calculate output layer gradients (different function for output layer)
     for (size_t i = 0; i < outputLayer.neurons.size() - 1; i++)
     {
         outputLayer.neurons[i].calculateOutputGradient(targetOutput[i]);
-        //std::cout << "Output layer gradient: " << outputLayer.neurons[i].errorGradient << "\n";
     }
 
     // Calculate hidden layer gradients
@@ -137,33 +109,27 @@ double NeuralNetwork::backPropagate(const std::vector<double>& input, const std:
 
     // All error gradients have been calculated, now we need to update the weights and biases
     
-    //std::cout << "  NeuralNetwork: Update weights and biases for OUTPUT layer.\n";
-    int u = 0;
     // Update output layer weights and biases
     for (auto& neuron : outputLayer.neurons)
     {
-        //std::cout << "   Neuron " << u++ << ":\n";
-        neuron.updateWeights(TODO, true);
+        // Send the neurons from the previous layer
+        neuron.updateWeights(networkLayers[networkLayers.size() - 2].neurons, true);
         neuron.updateBias();
     }
 
     // Update weights and biases for hidden layers
     for (size_t i = networkLayers.size() - 2; i > 0; i--)
     {
-        //std::cout << "  NeuralNetwork: Update weights and biases for layer " << i << ".\n";
-        
         NetworkLayer& layer = networkLayers[i];
-        //NetworkLayer& layerToTheRight = networkLayers[i + 1];
-        u = 0;
+        
         for (auto& neuron : layer.neurons)
         {
-            //std::cout << "   Neuron " << u++ << ":\n";
-            neuron.updateWeights(TODO, false);
+            // Send the neurons from the previous layer
+            neuron.updateWeights(networkLayers[i-1].neurons, false);
             neuron.updateBias();
         }
     }
-
-    //std::cout << "NeuralNetwork: Updated weights and biases.\n";
+    
     return meanSquareError;
 }
 

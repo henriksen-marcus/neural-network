@@ -4,6 +4,7 @@
 #include "ActivationFunction.h"
 #include "NetworkLayer.h"
 
+struct LayerInfo;
 /**
  * \brief A complete neural network with a number of layers, each containing a number of neurons.
  * Has the ability to predict outputs and adjust weights and biases through training.
@@ -24,7 +25,8 @@ public:
      * \param activationFunction The activation function to use for the neurons in the network.
      */
     NeuralNetwork(int numInputs, int numOutputs, int numHiddenLayers, int numNeuronsPerHiddenLayer, double learningRate, ActiviationFunction activationFunction);
-    ~NeuralNetwork() = default;
+ 
+    NeuralNetwork(const NNConstructionInfo& constructionInfo);
 
     /**
      * \brief Process the input data through the network. This is the same as
@@ -65,10 +67,5 @@ public:
     }
 
 protected:
-    int numInputs;
-    int numOutputs;
-    int numHiddenLayers;
-    int numNeuronsPerHiddenLayer;
-    double learningRate;
     std::vector<NetworkLayer> networkLayers;
 };
