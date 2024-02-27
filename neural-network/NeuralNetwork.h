@@ -12,20 +12,6 @@ struct LayerInfo;
 class NeuralNetwork
 {
 public:
-
-    /**
-     * \brief 
-     * \param numInputs How many neurons there should be on the first layer (input layer).
-     * For image data this would be the amount of pixels in the image.
-     * \param numOutputs How many neurons there should be on the last layer (output layer).
-     * \param numHiddenLayers How many hidden layers in between there should be.
-     * \param numNeuronsPerHiddenLayer How many neurons each hidden layer should contain.
-     * \param learningRate The rate of change for the weights and biases during training.
-     * Too high a value can cause the network to overshoot the optimal weights and biases.
-     * \param activationFunction The activation function to use for the neurons in the network.
-     */
-    NeuralNetwork(int numInputs, int numOutputs, int numHiddenLayers, int numNeuronsPerHiddenLayer, double learningRate, ActiviationFunction activationFunction);
- 
     NeuralNetwork(const NNConstructionInfo& constructionInfo);
 
     /**
