@@ -25,10 +25,10 @@ int main()
         {1},
         {0}
     };
-    
-    //NeuralNetwork nn = NeuralNetwork(2, 1, 2, 100, 0.1, Sigmoid);
+
+    // Construct the neural network
     NNConstructionInfo nnInfo(2, LayerInfo(1, 0.1, Sigmoid));
-    nnInfo.addHiddenLayer(LayerInfo(1000, 0.1, Sigmoid));
+    nnInfo.addHiddenLayer(LayerInfo(300, 0.1, Tanh));
     NeuralNetwork nn(nnInfo);
     
     // Train for multiple epochs
@@ -42,10 +42,10 @@ int main()
     }
 
     std::cout << "Final MSE: " << mse << "\n";
-    std::cout << "Prediction for 0, 0: " << nn.forwardPropagate(trainingData[0])[0] << std::endl;
-    std::cout << "Prediction for 0, 1: " << nn.forwardPropagate(trainingData[1])[0] << std::endl;
-    std::cout << "Prediction for 1, 0: " << nn.forwardPropagate(trainingData[2])[0] << std::endl;
-    std::cout << "Prediction for 1, 1: " << nn.forwardPropagate(trainingData[3])[0] << std::endl;
+    std::cout << "Prediction for 0, 0: " << nn.forwardPropagate(trainingData[0])[0] << "\n";
+    std::cout << "Prediction for 0, 1: " << nn.forwardPropagate(trainingData[1])[0] << "\n";
+    std::cout << "Prediction for 1, 0: " << nn.forwardPropagate(trainingData[2])[0] << "\n";
+    std::cout << "Prediction for 1, 1: " << nn.forwardPropagate(trainingData[3])[0] << "\n";
     
     return 0;
 }

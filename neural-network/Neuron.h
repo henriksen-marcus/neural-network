@@ -24,32 +24,27 @@ public:
     Neuron(size_t numInputs, double learningRate, ActiviationFunction activationFunction);
 
     /**
-     * \brief 
-     * \param targetOutput 
+     * \brief Calculate the error gradient for this neuron
+     * if it's in the the output layer.
+     * \param targetOutput The target output for this neuron.
      */
     void calculateOutputGradient(double targetOutput);
+
+    /**
+     * \brief Calculate the error gradient for this neuron
+     * if it's in a hidden layer. Uses the error gradients
+     * of the neurons in the next layer.
+     * \param layerToTheRight The next layer in the network (i+1)
+     * \param index The index of this neuron in the current layer.
+     */
     void calculateHiddenGradient(const NetworkLayer& layerToTheRight, size_t index);
-
-
-    /**
-     * \brief Calculates the activation amount for the neuron.
-     * \param input The summed input to the neuron.
-     * \return The activation amount.
-     */
-    static double activate(double input);
-
-    /**
-     * \brief 
-     * \param input 
-     * \return 
-     */
-    static double activateDerivative(double input);
 
     /**
      * \brief Processes the output from the previous layer and calculates the output for this neuron
      * \param neuronsOfPreviousLayer The neurons from the previous layer
      */
     void feedForward(const std::vector<Neuron>& neuronsOfPreviousLayer);
+
     void updateWeights(const std::vector<Neuron>& neuronsOfPreviousLayer, bool isOutputLayer);
     void updateBias();
 
@@ -72,6 +67,20 @@ public:
     std::vector<double> weights;
 
 protected:
+    /**
+     * \brief Calculates the activation amount for the neuron.
+     * \param input The summed input to the neuron.
+     * \return The activation amount.
+     */
+    double activate(double input) const;
+
+    /**
+     * \brief Calculates the derivative of the activation function for the neuron.
+     * \param input The activated output from this neuron.
+     * \return 
+     */
+    double activateDerivative(double input) const;
+ 
     double bias;
     // Learning rate from the parent layer
     double learningRate;

@@ -1,5 +1,4 @@
 ﻿#include "NeuralNetwork.h"
-
 #include <cassert>
 #include <iostream>
 

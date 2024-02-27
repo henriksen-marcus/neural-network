@@ -1,6 +1,7 @@
 ﻿#include "Neuron.h"
 #include <iostream>
 #include "NetworkLayer.h"
+#include "ActivationFunction.h"
 
 Neuron::Neuron(size_t numInputs, double learningRate, ActiviationFunction activationFunction)
 {
@@ -42,13 +43,37 @@ void Neuron::calculateHiddenGradient(const NetworkLayer& layerToTheRight, size_t
     errorGradient = sum * activateDerivative(output);
 }
 
-double Neuron::activate(double input)
+double Neuron::activate(double input) const
 {
-    return 1 / (1 + exp(-input)); // Sigmoid activation function
+    switch (activationFunction)
+    {
+    case Sigmoid:
+        return 1 / (1 + exp(-input));
+    case ReLU:
+        return input > 0 ? input : 0;
+    case Tanh:
+        return tanh(input);
+    default:
+        std::cerr << "Neuron::activate: Unknown activation function.\n";
+        return 0;
+    }
 }
 
-double Neuron::activateDerivative(double input)
+double Neuron::activateDerivative(double input) const
 {
+    switch (activationFunction)
+    {
+        case Sigmoid:
+            return input * (1 - input); // Derivative of the sigmoid activation function
+        case ReLU:
+            return input > 0 ? 1 : 0;
+        case Tanh:
+            return 1 - input * input; // Derivative of the tanh activation function
+    default:
+        std::cerr << "Neuron::activateDerivative: Unknown activation function.\n";
+        return 0;
+    }
+    
     return input * (1 - input); // Derivative of the sigmoid activation function
 }
 
