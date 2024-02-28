@@ -10,7 +10,6 @@ struct LayerInfo
     ActiviationFunction activationFunction;
 
     /**
-     * \brief 
      * \param numNeurons The number of neurons in the layer. For the input layer, this is
      * the number of inputs. For the output layer, number of outputs.
      * \param learningRate The rate of change for the weights and biases during training.

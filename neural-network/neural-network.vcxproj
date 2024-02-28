@@ -133,10 +133,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ActivationFunction.h" />
+    <ClInclude Include="examples\ExampleImageRecognition.h" />
+    <ClInclude Include="examples\ExampleXOR.h" />
+    <ClInclude Include="examples\ITrainingExample.h" />
     <ClInclude Include="NetworkLayer.h" />
     <ClInclude Include="NeuralNetwork.h" />
     <ClInclude Include="Neuron.h" />
     <ClInclude Include="NNConstructionInfo.h" />
+    <ClInclude Include="Timer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="vendor\" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
