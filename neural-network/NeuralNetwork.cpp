@@ -81,8 +81,8 @@ double NeuralNetwork::backPropagate(const std::vector<double>& input, const std:
     // Sum up the error for each neuron in the output layer
     for (size_t i = 0; i < outputLayer.neurons.size(); i++)
     {
-        outputLayer.neurons[i].errorDelta = targetOutput[i] - outputLayer.neurons[i].output;
         double neronDeltaError = targetOutput[i] - outputLayer.neurons[i].output;
+        outputLayer.neurons[i].errorDelta = neronDeltaError;
         errorSum += neronDeltaError * neronDeltaError;
     }
 
