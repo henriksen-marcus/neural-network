@@ -34,9 +34,8 @@ void Neuron::calculateHiddenGradient(const NetworkLayer& layerToTheRight, size_t
 {
     // Sum up the error for each neuron in the next layer
     double sum = 0.0;
-    for (size_t i = 0; i < layerToTheRight.neurons.size() - 1; i++)
+    for (const auto& neuron : layerToTheRight.neurons)
     {
-        const Neuron& neuron = layerToTheRight.neurons[i];
         sum += neuron.weights[index] * neuron.errorGradient;
     }
     
@@ -73,8 +72,6 @@ double Neuron::activateDerivative(double input) const
         std::cerr << "Neuron::activateDerivative: Unknown activation function.\n";
         return 0;
     }
-    
-    return input * (1 - input); // Derivative of the sigmoid activation function
 }
 
 void Neuron::feedForward(const std::vector<Neuron>& neuronsOfPreviousLayer)

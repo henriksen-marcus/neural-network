@@ -137,10 +137,8 @@ double NeuralNetwork::train(const std::vector<std::vector<double>>& trainingData
     double MSE = 0.0;
     for (size_t i = 0; i < trainingData.size(); i++)
     {
-        std::vector<double> input = trainingData[i];
-        std::vector<double> output = forwardPropagate(input);
-        MSE = backPropagate(input, targetOutput[i]);
+        forwardPropagate(trainingData[i]);
+        MSE = backPropagate(trainingData[i], targetOutput[i]);
     }
-    
     return MSE;
 }
